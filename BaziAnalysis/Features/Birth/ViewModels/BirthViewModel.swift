@@ -7,6 +7,7 @@ public class BirthViewModel: ObservableObject {
     @Published public var analysisResult: AnalysisResult?
     @Published public var showingResult = false
     @Published public var isAnalyzing = false
+    @Published var analysisHistory: [AnalysisResult]? = []
     
     private let baziService = BaziService.shared
     private let fiveElementsService = FiveElementsService.shared
@@ -43,19 +44,23 @@ public class BirthViewModel: ObservableObject {
             // 计算八字
             let bazi = self.baziService.calculateBazi(date: date)
             
-            // 分析五行
+            // 分析五行并转换为文字描述
             let elementAnalysis = self.fiveElementsService.analyzeFiveElements(bazi: bazi)
             
             // 获取命格分析
             let mainPattern = self.fiveElementsService.analyzeMainPattern(bazi: bazi)
             
             // 生成分析结果
-            self.analysisResult = AnalysisResult(
+            let result = AnalysisResult(
                 bazi: bazi,
-                elementAnalysis: elementAnalysis,
+                elementAnalysis: elementAnalysis,  // 现在是 String 类型
                 mainPattern: mainPattern
             )
             
+            // 添加到历史记录
+            self.analysisHistory?.append(result)
+            
+            self.analysisResult = result
             self.isAnalyzing = false
             self.showingResult = true
         }

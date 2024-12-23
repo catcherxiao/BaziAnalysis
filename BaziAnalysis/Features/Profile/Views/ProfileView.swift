@@ -46,6 +46,7 @@ struct ProfileView: View {
                     AvatarEditView(avatarImage: $avatarImage)
                 }
             }
+            .listRowBackground(AppTheme.ModuleColors.profile.opacity(0.1))
             
             // 基本信息设置
             Section("基本信息") {
@@ -65,6 +66,7 @@ struct ProfileView: View {
                     }
                 }
             }
+            .listRowBackground(AppTheme.ModuleColors.profile.opacity(0.1))
             
             // 应用设置
             Section("应用设置") {
@@ -80,6 +82,7 @@ struct ProfileView: View {
                     Label("隐私设置", systemImage: "lock")
                 }
             }
+            .listRowBackground(AppTheme.ModuleColors.profile.opacity(0.1))
             
             // 其他信息
             Section("其他") {
@@ -98,8 +101,11 @@ struct ProfileView: View {
                         .foregroundColor(.secondary)
                 }
             }
+            .listRowBackground(AppTheme.ModuleColors.profile.opacity(0.1))
         }
         .navigationTitle("个人中心")
+        .listStyle(.insetGrouped)
+        .background(AppTheme.gradient)
     }
 }
 

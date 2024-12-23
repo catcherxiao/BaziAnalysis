@@ -1,17 +1,20 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var birthViewModel: BirthViewModel
     
     var body: some View {
         List {
-            ForEach(appState.analysisHistory) { result in
-                HistoryItemView(result: result)
+            if let results = birthViewModel.analysisHistory {
+                ForEach(results) { result in
+                    HistoryItemView(result: result)
+                }
             }
         }
         .listStyle(.insetGrouped)
+        .background(AppTheme.gradient)
         .overlay {
-            if appState.analysisHistory.isEmpty {
+            if birthViewModel.analysisHistory?.isEmpty ?? true {
                 ContentUnavailableView(
                     "暂无历史记录",
                     systemImage: "clock",
@@ -32,19 +35,28 @@ struct HistoryItemView: View {
             VStack(alignment: .leading, spacing: 8) {
                 // 日期
                 Text(result.date.formatted(date: .long, time: .shortened))
-                    .font(.headline)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 
                 // 八字
-                HStack(spacing: 12) {
-                    Text(result.bazi.yearPillar)
-                    Text(result.bazi.monthPillar)
-                    Text(result.bazi.dayPillar)
-                    Text(result.bazi.hourPillar)
+                HStack {
+                    ForEach(0..<4) { index in
+                        let pillar = result.bazi.getPillarContent(index)
+                        VStack {
+                            Text(pillar.stem)
+                            Text(pillar.branch)
+                        }
+                        .font(.system(.body, design: .serif))
+                    }
                 }
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                
+                // 主要特征
+                Text(result.mainPattern)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 8)
         }
     }
 }
@@ -52,6 +64,6 @@ struct HistoryItemView: View {
 #Preview {
     NavigationStack {
         HistoryView()
-            .environmentObject(AppState())
+            .environmentObject(BirthViewModel())
     }
 } 

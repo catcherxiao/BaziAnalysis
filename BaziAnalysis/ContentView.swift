@@ -17,7 +17,7 @@ struct ContentView: View {
                     .environmentObject(birthViewModel)
             }
             .tabItem {
-                Label("八字分析", systemImage: "chart.bar")
+                Label("分析", systemImage: "chart.bar")
             }
             
             NavigationStack {
@@ -25,9 +25,11 @@ struct ContentView: View {
                     .environmentObject(birthViewModel)
             }
             .tabItem {
-                Label("个人中心", systemImage: "person")
+                Label("我的", systemImage: "person")
             }
         }
+        .tint(Color(hex: "5B7FFF"))
+        .background(AppTheme.gradient)
     }
 }
 

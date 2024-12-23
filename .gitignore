@@ -21,7 +21,18 @@ DerivedData/
 
 # Swift Package Manager
 .build/
-Packages/
-Package.pins
-Package.resolved
 .swiftpm/
+
+# CocoaPods
+Pods/
+*.xcworkspace
+!default.xcworkspace
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output

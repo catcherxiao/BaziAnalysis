@@ -8,242 +8,173 @@ import AppKit
 
 struct AnalysisResultView: View {
     let result: AnalysisResult
-    @Environment(\.dismiss) private var dismiss
-    @State private var showContent = false
-    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                // 八字展示卡片
                 baziCard
-                    .padding(.horizontal)
-                    .transition(.moveAndFade())
-                    .opacity(showContent ? 1 : 0)
-                    .offset(y: showContent ? 0 : 20)
                 
-                patternCard
-                    .padding(.horizontal)
-                    .transition(.moveAndFade())
-                    .opacity(showContent ? 1 : 0)
-                    .offset(y: showContent ? 0 : 20)
+                // 五行分析卡片
+                fiveElementsCard
                 
-                elementAnalysisCard
-                    .padding(.horizontal)
-                    .transition(.moveAndFade())
-                    .opacity(showContent ? 1 : 0)
-                    .offset(y: showContent ? 0 : 20)
-                
-                adviceCard
-                    .padding(.horizontal)
-                    .transition(.moveAndFade())
-                    .opacity(showContent ? 1 : 0)
-                    .offset(y: showContent ? 0 : 20)
-                
-                Spacer().frame(height: 30)
+                // 命理解读卡片
+                interpretationCard
             }
+            .padding()
+            .background(AppTheme.cardBackground)
         }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.8)) {
-                showContent = true
-            }
-        }
+        .background(AppTheme.gradient)
     }
     
     private var baziCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("您的八字")
                 .font(.headline)
+                .foregroundColor(AppTheme.primaryText)
             
-            HStack(spacing: 20) {
-                pillarView("年柱", stem: result.bazi.yearStem, branch: result.bazi.yearBranch)
-                pillarView("月柱", stem: result.bazi.monthStem, branch: result.bazi.monthBranch)
-                pillarView("日柱", stem: result.bazi.dayStem, branch: result.bazi.dayBranch)
-                pillarView("时柱", stem: result.bazi.hourStem, branch: result.bazi.hourBranch)
+            HStack(spacing: 15) {
+                ForEach(0..<4) { index in
+                    let pillar = result.bazi.getPillarContent(index)
+                    VStack(spacing: 8) {
+                        Text(result.bazi.getPillarTitle(index))
+                            .font(.caption)
+                            .foregroundColor(AppTheme.secondaryText)
+                        
+                        VStack(spacing: 4) {
+                            Text(pillar.stem)
+                                .font(.system(.body, design: .serif))
+                            Text(pillar.branch)
+                                .font(.system(.body, design: .serif))
+                        }
+                        .foregroundColor(AppTheme.primaryText)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(Color.white)
+                    .cornerRadius(8)
+                }
             }
         }
-        .modifier(cardStyle)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .moduleCard(color: AppTheme.ModuleColors.bazi.opacity(0.1))
     }
     
-    private var patternCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("命格分析")
-                .font(.headline)
-            
-            Text(result.mainPattern)
-                .font(.body)
-                .lineSpacing(6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .modifier(cardStyle)
-    }
-    
-    private var elementAnalysisCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+    // 五行分析卡片
+    private var fiveElementsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("五行分析")
                 .font(.headline)
+                .foregroundColor(AppTheme.primaryText)
             
-            Chart {
-                ForEach(result.elementAnalysis) { analysis in
-                    BarMark(
-                        x: .value("Element", analysis.element.rawValue),
-                        y: .value("Score", showContent ? analysis.percentage : 0)
-                    )
-                    .foregroundStyle(chartColors[analysis.element.index])
+            VStack(spacing: 15) {
+                // 天干五行
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("天干五行")
+                        .font(.subheadline)
+                        .foregroundColor(AppTheme.secondaryText)
+                    
+                    HStack {
+                        ForEach(result.bazi.stemElements, id: \.self) { element in
+                            Text(element)
+                                .font(.system(.body, design: .serif))
+                                .foregroundColor(AppTheme.primaryText)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(Color.white)
+                                .cornerRadius(8)
+                        }
+                    }
                 }
-            }
-            .animation(.spring(response: 0.8), value: showContent)
-            .frame(height: 200)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(result.elementAnalysis) { analysis in
-                    Text("\(analysis.element.rawValue): \(String(format: "%.1f%%", analysis.percentage))")
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // 地支五行
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("地支五行")
+                        .font(.subheadline)
+                        .foregroundColor(AppTheme.secondaryText)
+                    
+                    HStack {
+                        ForEach(result.bazi.branchElements, id: \.self) { element in
+                            Text(element)
+                                .font(.system(.body, design: .serif))
+                                .foregroundColor(AppTheme.primaryText)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(Color.white)
+                                .cornerRadius(8)
+                        }
+                    }
                 }
             }
         }
-        .modifier(cardStyle)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .moduleCard(color: AppTheme.ModuleColors.fiveElements.opacity(0.1))
     }
     
-    private var adviceCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("命理建议")
+    // 命理解读卡片
+    private var interpretationCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("命理解读")
                 .font(.headline)
+                .foregroundColor(AppTheme.primaryText)
             
-            VStack(alignment: .leading, spacing: 12) {
-                adviceSection(title: "性格特点", content: getPersonalityAdvice())
-                adviceSection(title: "事业发展", content: getCareerAdvice())
-                adviceSection(title: "健康建议", content: getHealthAdvice())
+            VStack(alignment: .leading, spacing: 16) {
+                // 主要特征
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "person.fill")
+                        Text("主要特征")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(AppTheme.secondaryText)
+                    
+                    Text(result.mainPattern)
+                        .font(.body)
+                        .foregroundColor(AppTheme.primaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                // 五行分析
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "chart.bar.fill")
+                        Text("五行分析")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(AppTheme.secondaryText)
+                    
+                    Text(result.elementAnalysis)
+                        .font(.body)
+                        .foregroundColor(AppTheme.primaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.vertical, 8)
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .moduleCard(color: AppTheme.ModuleColors.destiny.opacity(0.1))
+    }
+}
+
+struct ProgressBar: View {
+    let value: Double
+    
+    var body: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer(minLength: 0)
+                Rectangle()
+                    .fill(AppTheme.gradient)
+                    .frame(height: geometry.size.height * CGFloat(value / 100))
             }
         }
-        .modifier(cardStyle)
-    }
-    
-    private func adviceSection(title: String, content: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Text(content)
-                .font(.body)
-                .lineSpacing(6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    
-    private func pillarView(_ title: String, stem: String, branch: String) -> some View {
-        VStack(spacing: 8) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            Text(stem)
-                .font(.title3)
-                .foregroundColor(.primary)
-            
-            Text(branch)
-                .font(.title3)
-                .foregroundColor(.primary)
-        }
-    }
-    
-    private func adviceRow(_ title: String, _ content: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Text(content)
-                .font(.body)
-        }
-    }
-    
-    private var cardStyle: CardStyle {
-        CardStyle(colorScheme: colorScheme)
-    }
-    
-    private func getPersonalityAdvice() -> String {
-        let strongestElement = result.elementAnalysis
-            .max(by: { $0.percentage < $1.percentage })?.element
-        
-        switch strongestElement {
-        case .wood:
-            return "您性格坚韧，富有理想，适合担任领导角色。"
-        case .fire:
-            return "您性格开朗活泼，善于社交，富有感染力。"
-        case .earth:
-            return "您性格稳重踏实，做事可靠，重视责任。"
-        case .metal:
-            return "您性格刚毅坚定，原则性强，追求完美。"
-        case .water:
-            return "您思维灵活，适应力强，善于创新。"
-        case .none:
-            return "暂无性格分析"
-        }
-    }
-    
-    private func getCareerAdvice() -> String {
-        return "根据您的八字特点，建议从事..."
-    }
-    
-    private func getHealthAdvice() -> String {
-        return "建议您在保健养生方面注意..."
-    }
-}
-
-extension AnyTransition {
-    static func moveAndFade() -> AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .trailing).combined(with: .opacity),
-            removal: .scale.combined(with: .opacity)
-        )
-    }
-}
-
-extension AnalysisResultView {
-    private var chartColors: [Color] {
-        colorScheme == .dark ? [
-            .green.opacity(0.8),    // 木
-            .red.opacity(0.8),      // 火
-            .yellow.opacity(0.8),   // 土
-            .gray.opacity(0.8),     // 金
-            .blue.opacity(0.8)      // 水
-        ] : [
-            .green,    // 木
-            .red,      // 火
-            .yellow,   // 土
-            .gray,     // 金
-            .blue      // 水
-        ]
-    }
-}
-
-extension FiveElement {
-    var index: Int {
-        switch self {
-        case .wood: return 0
-        case .fire: return 1
-        case .earth: return 2
-        case .metal: return 3
-        case .water: return 4
-        }
-    }
-}
-
-private struct CardStyle: ViewModifier {
-    let colorScheme: ColorScheme
-    
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .background(colorScheme == .dark ? Color(.systemGray6) : Color(.systemBackground))
-            .cornerRadius(12)
-            .shadow(
-                color: colorScheme == .dark ? .black.opacity(0.3) : .gray.opacity(0.2),
-                radius: 8,
-                x: 0,
-                y: 2
-            )
+        .background(Color.gray.opacity(0.2))
+        .cornerRadius(3)
     }
 } 
