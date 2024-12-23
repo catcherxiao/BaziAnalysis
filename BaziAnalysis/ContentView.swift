@@ -8,37 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = BirthViewModel()
-    @EnvironmentObject private var appState: AppState
+    @StateObject private var birthViewModel = BirthViewModel()
     
     var body: some View {
         TabView {
             NavigationStack {
                 BirthInputView()
-                    .environmentObject(viewModel)
-                    .navigationTitle("八字分析")
+                    .environmentObject(birthViewModel)
             }
             .tabItem {
-                Label("分析", systemImage: "chart.bar")
-            }
-            
-            NavigationStack {
-                HistoryView()
-                    .navigationTitle("历史记录")
-            }
-            .tabItem {
-                Label("历史", systemImage: "clock")
+                Label("八字分析", systemImage: "chart.bar")
             }
             
             NavigationStack {
                 ProfileView()
-                    .navigationTitle("我的")
+                    .environmentObject(birthViewModel)
             }
             .tabItem {
-                Label("我的", systemImage: "person.circle")
+                Label("个人中心", systemImage: "person")
             }
         }
-        .tint(.blue)
     }
 }
 

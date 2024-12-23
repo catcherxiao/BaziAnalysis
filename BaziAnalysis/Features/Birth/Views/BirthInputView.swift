@@ -1,192 +1,113 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#else
-import AppKit
-#endif
 
-public struct BirthInputView: View {
+struct BirthInputView: View {
     @EnvironmentObject private var viewModel: BirthViewModel
-    @Environment(\.colorScheme) private var colorScheme
-    @State private var showDatePicker = true
     
-    // 日期格式化器
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "zh_CN")
-        formatter.dateFormat = "yyyy年MM月dd日"
-        return formatter
-    }()
+    // 定义十二时辰
+    private let timeSlots = [
+        (name: "子时", range: "23:00-00:59"),
+        (name: "丑时", range: "1:00-2:59"),
+        (name: "寅时", range: "3:00-4:59"),
+        (name: "卯时", range: "5:00-6:59"),
+        (name: "辰时", range: "7:00-8:59"),
+        (name: "巳时", range: "9:00-10:59"),
+        (name: "午时", range: "11:00-12:59"),
+        (name: "未时", range: "13:00-14:59"),
+        (name: "申时", range: "15:00-16:59"),
+        (name: "酉时", range: "17:00-18:59"),
+        (name: "戌时", range: "19:00-20:59"),
+        (name: "亥时", range: "21:00-22:59")
+    ]
     
-    // 时间格式化器
-    private let timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "zh_CN")
-        formatter.dateFormat = "HH:mm"
-        return formatter
-    }()
-    
-    public init() {}
-    
-    public var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // 顶部图标
-                Image(systemName: "calendar.circle.fill")
-                    .resizable()
-                    .frame(width: 60, height: 60)
-                    .foregroundColor(.blue)
-                    .padding(.top, 20)
-                
-                if showDatePicker {
-                    // 日期时间选择器
-                    dateTimePickerView
-                        .transition(.opacity)
-                    
-                    // 开始分析按钮
-                    analyzeButton
-                } else {
-                    // 显示选择的日期时间
-                    selectedDateTimeView
-                        .transition(.opacity)
-                    
-                    // 分析结果
-                    if let result = viewModel.analysisResult {
-                        AnalysisResultView(result: result)
-                            .transition(.move(edge: .bottom))
+    var body: some View {
+        Group {
+            if viewModel.showingResult {
+                AnalysisResultView(result: viewModel.analysisResult!)
+            } else {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Text("请选择出生时间")
+                            .font(.title)
+                            .fontWeight(.medium)
+                            .padding(.top, 16)
+                        
+                        // 日期选择
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("出生日期")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                            
+                            DatePicker("",
+                                     selection: $viewModel.birthDate,
+                                     displayedComponents: [.date])
+                            .datePickerStyle(.graphical)
+                            .frame(maxHeight: 280)
+                            .environment(\.locale, Locale(identifier: "zh_CN"))
+                            .environment(\.calendar, Calendar(identifier: .gregorian))
+                            .transformEnvironment(\.calendar) { calendar in
+                                calendar.locale = Locale(identifier: "zh_CN")
+                            }
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+                        
+                        // 时辰选择
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("出生时辰")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                            
+                            Picker("", selection: $viewModel.selectedTimeSlot) {
+                                ForEach(0..<12) { index in
+                                    HStack {
+                                        Text(timeSlots[index].name)
+                                            .font(.headline)
+                                        Text("(\(timeSlots[index].range))")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .tag(index)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(height: 90)
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+                        
+                        // 分析按钮
+                        Button(action: {
+                            viewModel.analyze()
+                        }) {
+                            if viewModel.isAnalyzing {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            } else {
+                                Text("开始分析")
+                                    .font(.headline)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .disabled(viewModel.isAnalyzing)
+                        .padding(.top, 8)
                     }
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
                 }
-                
-                Spacer(minLength: 30)
+                .scrollDismissesKeyboard(.immediately)
             }
         }
-        #if os(iOS)
-        .background(Color(UIColor.systemGroupedBackground))
-        #else
-        .background(Color(NSColor.windowBackgroundColor))
-        #endif
+        .navigationBarTitleDisplayMode(.inline)
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
-    
-    // 日期时间选择器视图
-    private var dateTimePickerView: some View {
-        VStack(spacing: 20) {
-            // 日期选择
-            VStack(alignment: .leading, spacing: 8) {
-                Text("出生日期")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                DatePicker("",
-                         selection: $viewModel.birthDate,
-                         displayedComponents: [.date])
-                #if os(iOS)
-                    .datePickerStyle(.graphical)
-                #else
-                    .datePickerStyle(.stepperField)
-                #endif
-                    .environment(\.locale, Locale(identifier: "zh_CN"))
-                    .labelsHidden()
-            }
-            
-            // 时间选择
-            VStack(alignment: .leading, spacing: 8) {
-                Text("出生时间")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                DatePicker("",
-                         selection: $viewModel.birthTime,
-                         displayedComponents: [.hourAndMinute])
-                #if os(iOS)
-                    .datePickerStyle(.wheel)
-                #else
-                    .datePickerStyle(.stepperField)
-                #endif
-                    .environment(\.locale, Locale(identifier: "zh_CN"))
-                    .labelsHidden()
-                    .frame(height: 150)
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                #if os(iOS)
-                .fill(colorScheme == .dark ? Color(UIColor.systemGray6) : .white)
-                #else
-                .fill(colorScheme == .dark ? Color(NSColor.windowBackgroundColor) : .white)
-                #endif
-                .shadow(radius: 5)
-        )
-        .padding(.horizontal)
-    }
-    
-    // 选择的日期时间视图
-    private var selectedDateTimeView: some View {
-        VStack(spacing: 12) {
-            Text("您选择的出生时间")
-                .font(.headline)
-            
-            HStack(spacing: 20) {
-                Text(dateFormatter.string(from: viewModel.birthDate))
-                Text(timeFormatter.string(from: viewModel.birthTime))
-            }
-            .font(.title2)
-            
-            Button(action: {
-                withAnimation {
-                    showDatePicker = true
-                    viewModel.analysisResult = nil
-                }
-            }) {
-                Text("修改出生时间")
-                    .foregroundColor(.blue)
-            }
-            .padding(.top, 8)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                #if os(iOS)
-                .fill(colorScheme == .dark ? Color(UIColor.systemGray6) : .white)
-                #else
-                .fill(colorScheme == .dark ? Color(NSColor.windowBackgroundColor) : .white)
-                #endif
-                .shadow(radius: 5)
-        )
-        .padding(.horizontal)
-    }
-    
-    // 分析按钮
-    private var analyzeButton: some View {
-        Button(action: {
-            withAnimation {
-                showDatePicker = false
-                viewModel.analyze()
-            }
-        }) {
-            HStack {
-                Text("开始分析")
-                    .font(.headline)
-                
-                if viewModel.isAnalyzing {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(
-                RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.blue)
-            )
-            .foregroundColor(.white)
-        }
-        .padding(.horizontal)
-        .disabled(viewModel.isAnalyzing)
-    }
-}
-
-#Preview {
-    BirthInputView()
-        .environmentObject(BirthViewModel())
 } 

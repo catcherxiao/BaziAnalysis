@@ -3,7 +3,7 @@ import SwiftUI
 
 public class BirthViewModel: ObservableObject {
     @Published public var birthDate = Date()
-    @Published public var birthTime = Date()
+    @Published public var selectedTimeSlot = 6  // 默认午时
     @Published public var analysisResult: AnalysisResult?
     @Published public var showingResult = false
     @Published public var isAnalyzing = false
@@ -11,25 +11,27 @@ public class BirthViewModel: ObservableObject {
     private let baziService = BaziService.shared
     private let fiveElementsService = FiveElementsService.shared
     
+    // 时辰对应的小时起始时间
+    private let timeSlotHours = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
+    
     public init() {
         // 设置默认时间为今天中午12点
         var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         components.hour = 12
         components.minute = 0
         if let defaultTime = Calendar.current.date(from: components) {
-            birthTime = defaultTime
+            birthDate = defaultTime
         }
     }
     
     public func analyze() {
         isAnalyzing = true
         
-        // 合并日期和时间
+        // 合并日期和时辰
         let calendar = Calendar.current
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: birthTime)
         var dateComponents = calendar.dateComponents([.year, .month, .day], from: birthDate)
-        dateComponents.hour = timeComponents.hour
-        dateComponents.minute = timeComponents.minute
+        dateComponents.hour = timeSlotHours[selectedTimeSlot]
+        dateComponents.minute = 0  // 使用每个时辰的起始时间
         
         guard let date = calendar.date(from: dateComponents) else {
             isAnalyzing = false
