@@ -8,17 +8,41 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var viewModel = BirthViewModel()
+    @EnvironmentObject private var appState: AppState
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            NavigationStack {
+                BirthInputView()
+                    .environmentObject(viewModel)
+                    .navigationTitle("八字分析")
+            }
+            .tabItem {
+                Label("分析", systemImage: "chart.bar")
+            }
+            
+            NavigationStack {
+                HistoryView()
+                    .navigationTitle("历史记录")
+            }
+            .tabItem {
+                Label("历史", systemImage: "clock")
+            }
+            
+            NavigationStack {
+                ProfileView()
+                    .navigationTitle("我的")
+            }
+            .tabItem {
+                Label("我的", systemImage: "person.circle")
+            }
         }
-        .padding()
+        .tint(.blue)
     }
 }
 
 #Preview {
     ContentView()
 }
+//

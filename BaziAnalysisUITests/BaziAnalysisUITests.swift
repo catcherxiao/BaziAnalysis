@@ -8,36 +8,36 @@
 import XCTest
 
 final class BaziAnalysisUITests: XCTestCase {
-
+    let app = XCUIApplication()
+    
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+    
+    func testBasicNavigation() throws {
+        // 测试底部标签栏导航
+        XCTAssertTrue(app.tabBars["TabBar"].buttons["分析"].exists)
+        XCTAssertTrue(app.tabBars["TabBar"].buttons["历史"].exists)
+        XCTAssertTrue(app.tabBars["TabBar"].buttons["我的"].exists)
+        
+        // 测试分析页面基本元素
+        XCTAssertTrue(app.datePickers["出生日期"].exists)
+        XCTAssertTrue(app.datePickers["出生时间"].exists)
+        XCTAssertTrue(app.buttons["开始分析"].exists)
+    }
+    
+    func testAnalysisFlow() throws {
+        // 选择日期和时间
+        app.datePickers["出生日期"].tap()
+        app.datePickers["出生时间"].tap()
+        
+        // 点击分析按钮
+        app.buttons["开始分析"].tap()
+        
+        // 验证结果页面元素
+        XCTAssertTrue(app.staticTexts["您的八字"].exists)
+        XCTAssertTrue(app.staticTexts["五行分析"].exists)
+        XCTAssertTrue(app.staticTexts["命理建议"].exists)
     }
 }
