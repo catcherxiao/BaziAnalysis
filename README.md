@@ -38,7 +38,7 @@ BaziAnalysis/
 │   │       └── BirthViewModel.swift  // 出生信息处理
 │   ├── Analysis/                    // 分析结果模块
 │   │   ├── Views/
-│   │   │   └── AnalysisResultView.swift // 分析结���展示
+│   │   │   └── AnalysisResultView.swift // 分析结果展示
 │   │   └── ViewModels/
 │   │       └── AnalysisViewModel.swift   // 分析结果处理
 │   └── Profile/                     // 个人信息模块
@@ -70,26 +70,36 @@ VStack
 #### 2. 分析结果页面 (AnalysisResultView)
 ```
 ScrollView
-└── VStack
+└── VStack(spacing: 20)
     ├── 八字展示卡片 (baziCard)
-    │   ├── 标题："您的八字"
-    │   └── 四柱展示 (HStack)
-    │       ├── 年柱
-    │       ├── 月柱
-    │       ├── 日柱
-    │       └── 时柱
-    ├── 命格分析卡片 (patternCard)
-    │   ├── 标题："命格分析"
-    │   └── 分析内容
-    ├── 五行分析卡片 (elementAnalysisCard)
-    │   ├── 标题："五行分析"
-    │   ├── 图表展示 (Chart)
-    │   └── 详细数据
-    └── 建议卡片 (adviceCard)
-        ├── 标题："命理建议"
-        ├── 性格特点
-        ├── 事业发展
-        └── 健康建议
+    │   ├── 标题 (.headline, serif)
+    │   └── 四柱展示 (HStack, spacing: 15)
+    │       └── ForEach柱子 (VStack, spacing: 8)
+    │           ├── 柱名 (.callout, serif)
+    │           └── 天干地支 (VStack, spacing: 12)
+    │
+    ├── 五行分析卡片 (fiveElementsCard)
+    │   ├── 标题 (.headline, serif, indent: 1px)
+    │   └── 分析内容 (VStack, spacing: 12)
+    │       ├── 天干五行
+    │       │   ├── 子标题 (.subheadline, indent: 3px)
+    │       │   └── 五行展示 (HStack)
+    │       └── 地支五行
+    │           ├── 子标题 (.subheadline, indent: 3px)
+    │           └── 五行展示 (HStack)
+    │
+    ├── 主命格分析卡片 (interpretationCard)
+    │   ├── 标题 (.headline)
+    │   └── 内容区域 (VStack, spacing: 20)
+    │       └── 主要特征
+    │           ├── 图标+标题
+    │           └── 解读文本 (lineSpacing: 8)
+    │
+    └── 五行解读卡片 (elementInterpretationCard)
+        ├── 标题 (.headline)
+        └── 内容区域 (VStack, spacing: 20)
+            ├── 图标+标题
+            └── 分析文本 (lineSpacing: 8)
 ```
 
 #### 3. 个人信息页面 (ProfileView)
@@ -350,7 +360,7 @@ VStack
 
 4. 修改时间
    - 点击"修改出生时间"
-   - 重新显示日期选择器
+   - 重新显���日期选择器
    - 清空分析结果
 
 ### 3. 分析结果页面 (AnalysisResultView)
@@ -370,7 +380,7 @@ VStack
 │   └── 分析内容
 ├── 五行分析卡片 (elementAnalysisCard)
 │   ├── 标题："五行分析"
-│   ├── 图表展示
+│   ├── 图表展示 (Chart)
 │   └── 详细数据
 └── 建议卡片 (adviceCard)
     ├── 标题："命理建议"
@@ -418,7 +428,7 @@ MIT License
 - 布局结构：
 ```
 VStack
-├── 标题："请选择出生时间"
+├── 标题："请选���出生时间"
 ├── 日期选择区域
 │   ├── 标题："出生日期"
 │   └── 日期选择器 (中文化显示)
@@ -462,7 +472,7 @@ List
   - 统一了出生时间选择界面的设计
   - 将时间选择改为传统十二时辰显示
   - 优化了日期选择器的中文化显示
-  - 调整了界面布局，提升了空间利用率
+  - 调整了界面��局，提升了空间利用率
 
 - 界面改进
   - 减小了选择器模块的高度
@@ -516,68 +526,62 @@ MIT License
 
 ### 2. 分析结果页
 ```
-VStack
-├── 八字展示卡片 (浅蓝紫色背景)
-│   ├── 年柱
-│   ├── 月柱
-│   ├── 日柱
-│   └── 时柱
-├── 五行分析卡片 (浅粉紫色背景)
-│   ├── 天干五行
-│   └── 地支五行
-└── 命理解读卡片 (浅青紫色背景)
-    ├── 主要特征
-    └── 五行分析
+ScrollView
+└── VStack(spacing: 20)
+    ├── 八字展示卡片 (baziCard)
+    │   ├── 标题 (.headline, serif)
+    │   └── 四柱展示 (HStack, spacing: 15)
+    │       └── ForEach柱子 (VStack, spacing: 8)
+    │           ├── 柱名 (.callout, serif)
+    │           └── 天干地支 (VStack, spacing: 12)
+    │
+    ├── 五行分析卡片 (fiveElementsCard)
+    │   ├── 标题 (.headline, serif, indent: 1px)
+    │   └── 分析内容 (VStack, spacing: 12)
+    │       ├── 天干五行
+    │       │   ├── 子标题 (.subheadline, indent: 3px)
+    │       │   └── 五行展示 (HStack)
+    │       └── 地支五行
+    │           ├── 子标题 (.subheadline, indent: 3px)
+    │           └── 五行展示 (HStack)
+    │
+    ├── 主命格分析卡片 (interpretationCard)
+    │   ├── 标题 (.headline)
+    │   └── 内容区域 (VStack, spacing: 20)
+    │       └── 主要特征
+    │           ├── 图标+标题
+    │           └── 解读文本 (lineSpacing: 8)
+    │
+    └── 五行解读卡片 (elementInterpretationCard)
+        ├── 标题 (.headline)
+        └── 内容区域 (VStack, spacing: 20)
+            ├── 图标+标题
+            └── 分析文本 (lineSpacing: 8)
 ```
 
-### 3. 个人中心页面
-```
-List
-├── 用户信息区域 (浅橙色背景)
-├── 基本信息设置
-├── 应用设置
-└── 其他信息
-```
+### 3. 布局规范
 
-## 设计规范
+#### 间距规范
+- 卡片间距：20pt
+- 标题底部间距：12pt
+- 内容块间距：12-20pt
+- 文本行间距：8pt
+- 卡片内边距：
+  - 八字卡片：16pt
+  - 五行卡片：12pt
+  - 解读卡片：水平16pt，垂直12pt
 
-### 颜色系统
-- 主题色：浅紫色系 (#E9E3FF -> #F5F2FF)
-- 强调色：中等紫色 (#8B7EFF)
-- 模块色：
-  - 八字模块：浅蓝紫色 (#8B9FFF)
-  - 五行模块：浅粉紫色 (#B88BFF)
-  - 命理模块：浅青紫色 (#8BCAFF)
-  - 历史记录：浅绿色 (#8BFFB9)
-  - 个人中心：浅橙色 (#FFB88B)
+#### 字体规范
+- 卡片标题：.headline, serif
+- 子标题：.subheadline, serif
+- 八字柱名：.callout, serif
+- 正文内容：.body, serif
 
-### 布局规范
-- 卡片圆角：12pt
-- 内边距：16pt
-- 元素间距：20pt
-- 阴影效果：
-  - 颜色：黑色5%透明度
-  - 半径：8pt
-  - 偏移：(0, 2)pt
+#### 对齐方式
+- 标题左对齐
+- 内容两端对齐
+- 五行分析标题缩进：1px
+- 五行分析子标题缩进：3px
 
-## 版本更新记录
-
-### v1.0.2 (2024-03-22)
-- 界面优化
-  - 全新的紫色主题设计
-  - 优化了卡片视觉��果
-  - 统一了模块配色方案
-  - 改进了阴影和圆角样式
-
-- 交互改进
-  - 优化了卡片点击反馈
-  - 改进了列表滚动体验
-  - 统一了按钮样式
-  - 完善了视觉反馈
-
-- 功能完善
-  - 优化了五行分析展示
-  - 改进了命理解读格式
-  - 完善了历史记录展示
-  - 统一了日期时间显示
+[其他内容保持不变...]
 
