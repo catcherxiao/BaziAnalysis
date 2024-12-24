@@ -38,7 +38,7 @@ BaziAnalysis/
 │   │       └── BirthViewModel.swift  // 出生信息处理
 │   ├── Analysis/                    // 分析结果模块
 │   │   ├── Views/
-│   │   │   └── AnalysisResultView.swift // 分析结果展示
+│   │   │   └── AnalysisResultView.swift // 分析结���展示
 │   │   └── ViewModels/
 │   │       └── AnalysisViewModel.swift   // 分析结果处理
 │   └── Profile/                     // 个人信息模块
@@ -91,7 +91,13 @@ ScrollView
     ├── 主命格分析卡片 (interpretationCard)
     │   ├── 标题 (.headline)
     │   └── 内容区域 (VStack, spacing: 20)
-    │       └── 主要特征
+    │       ├── 主命格
+    │       │   ├── 图标+标题
+    │       │   └── 解读文本 (lineSpacing: 8)
+    │       ├── 性格特征
+    │       │   ├── 图标+标题
+    │       │   └── 解读文本 (lineSpacing: 8)
+    │       └── 适合行业
     │           ├── 图标+标题
     │           └── 解读文本 (lineSpacing: 8)
     │
@@ -360,7 +366,7 @@ VStack
 
 4. 修改时间
    - 点击"修改出生时间"
-   - 重新显���日期选择器
+   - 重新显示日期选择器
    - 清空分析结果
 
 ### 3. 分析结果页面 (AnalysisResultView)
@@ -428,7 +434,7 @@ MIT License
 - 布局结构：
 ```
 VStack
-├── 标题："请选���出生时间"
+├── 标题："请选择出生时间"
 ├── 日期选择区域
 │   ├── 标题："出生日期"
 │   └── 日期选择器 (中文化显示)
@@ -472,7 +478,7 @@ List
   - 统一了出生时间选择界面的设计
   - 将时间选择改为传统十二时辰显示
   - 优化了日期选择器的中文化显示
-  - 调整了界面��局，提升了空间利用率
+  - 调整了界面布局，提升了空间利用率
 
 - 界面改进
   - 减小了选择器模块的高度
@@ -548,7 +554,13 @@ ScrollView
     ├── 主命格分析卡片 (interpretationCard)
     │   ├── 标题 (.headline)
     │   └── 内容区域 (VStack, spacing: 20)
-    │       └── 主要特征
+    │       ├── 主命格
+    │       │   ├── 图标+标题
+    │       │   └── 解读文本 (lineSpacing: 8)
+    │       ├── 性格特征
+    │       │   ├── 图标+标题
+    │       │   └── 解读文本 (lineSpacing: 8)
+    │       └── 适合行业
     │           ├── 图标+标题
     │           └── 解读文本 (lineSpacing: 8)
     │
@@ -582,6 +594,20 @@ ScrollView
 - 内容两端对齐
 - 五行分析标题缩进：1px
 - 五行分析子标题缩进：3px
+
+### 数据模型
+
+#### AnalysisResult
+```swift
+public struct AnalysisResult: Identifiable {
+    public let id = UUID()
+    public let date = Date()
+    public let bazi: BaziResult
+    public let elementAnalysis: String
+    public let mainPattern: String
+    public let characterTraits: String     // 性格特征
+    public let careerSuggestions: String   // 适合行业
+}
 
 [其他内容保持不变...]
 
